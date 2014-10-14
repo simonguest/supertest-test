@@ -1,5 +1,4 @@
 'use strict';
-var config = require('config');
 var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
@@ -13,8 +12,10 @@ app.get('/health', function (req, res) {
 
 app.post('/people', function(req, res){
   var person = new personModel(req.body);
-  person.save(function(err, data){
-    if (err) console.log(err);
+  person.save(function(err){
+    if (err){
+      console.log(err);
+    }
   });
   res.send({status:'accepted'});
 });

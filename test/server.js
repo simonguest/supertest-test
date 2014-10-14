@@ -1,3 +1,4 @@
+'use strict';
 var async = require('async');
 var request = require('supertest');
 var assert = require('assert');
@@ -38,7 +39,7 @@ describe('Server', function(){
           assert.equal(err, null);
           assert.equal(res.body.status, 'hello world');
           done();
-        })
+        });
     });
   });
 
@@ -52,12 +53,12 @@ describe('Server', function(){
             .set('Accept', 'application/json')
             .expect(200)
             .expect('Content-Type',/json/)
-            .end(function(err, res){
+            .end(function(err){
               assert.equal(err, null);
               assert.equal(mongoSaveSpy.callCount, 1);
               assert.equal(mongoSaveSpy.lastCall.thisValue.firstName, 'Bobby');
               callback(err);
-            })
+            });
         },
         function(callback){
           request(server)
@@ -65,11 +66,11 @@ describe('Server', function(){
             .set('Accept', 'application/json')
             .expect(200)
             .expect('Content-Type',/json/)
-            .end(function(err, res){
+            .end(function(err){
               assert.equal(err, null);
               assert.equal(mongoFindSpy.callCount, 1);
               callback(err);
-            })
+            });
         }
       ], function (){
         done();
