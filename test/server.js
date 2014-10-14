@@ -2,15 +2,29 @@ var async = require('async');
 var request = require('supertest');
 var assert = require('assert');
 var server = require('../server');
+var mongoose = require('mongoose');
+var personModel = require('../models/person');
+var sinon = require('sinon');
 
 describe('Server', function(){
 
-  before(function(){
-    console.log('running before');
+  var mongoSaveSpy;
+  var mongoFindSpy;
+
+  before(function(done){
+    mongoose.connect('mongodb://localhost:27017/testdb');
+    mongoSaveSpy = sinon.spy(personModel.prototype, 'save');
+    mongoFindSpy = sinon.spy(personModel, 'find');
+    done();
   });
 
-  after(function(){
+  after(function(done){
     console.log('running after');
+    mongoose.connection.db.executeDbCommand({dropDatabase:1}, function(){
+      mongoose.connection.close(function(){
+        done();
+      });
+    });
   });
 
   describe('GET /health', function(){
@@ -40,6 +54,8 @@ describe('Server', function(){
             .expect('Content-Type',/json/)
             .end(function(err, res){
               assert.equal(err, null);
+              assert.equal(mongoSaveSpy.callCount, 1);
+              assert.equal(mongoSaveSpy.lastCall.thisValue.firstName, 'Bobby');
               callback(err);
             })
         },
@@ -51,7 +67,7 @@ describe('Server', function(){
             .expect('Content-Type',/json/)
             .end(function(err, res){
               assert.equal(err, null);
-              assert.equal(res.body.people, 1);
+              assert.equal(mongoFindSpy.callCount, 1);
               callback(err);
             })
         }

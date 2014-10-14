@@ -14,6 +14,7 @@
   "devDependencies": {
     "async": "^0.9.0",
     "mocha": "^1.21.4",
+    "sinon": "^1.10.3",
     "supertest": "^0.14.0"
   }
 }
