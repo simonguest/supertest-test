@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-var app = require('./server');
+var app = require('./app');
 
 mongoose.connect('mongodb://localhost:27017/persondb', {}, function (err) {
   if (err) return console.log(err);
