@@ -31,7 +31,7 @@ describe('Server', function(){
   describe('GET /health', function(){
     it('should return a valid status code', function(done){
       request(server)
-        .get('/health')
+        .get('/api/health')
         .set('Accept', 'application/json')
         .expect(200)
         .expect('Content-Type',/json/)
@@ -48,7 +48,7 @@ describe('Server', function(){
       async.series([
         function(callback){
           request(server)
-            .post('/people')
+            .post('/api/people')
             .send({firstName:'Bobby', lastName:'Sanborn'})
             .set('Accept', 'application/json')
             .expect(200)
@@ -62,7 +62,7 @@ describe('Server', function(){
         },
         function(callback){
           request(server)
-            .get('/people')
+            .get('/api/people')
             .set('Accept', 'application/json')
             .expect(200)
             .expect('Content-Type',/json/)
