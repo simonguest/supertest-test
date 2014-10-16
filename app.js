@@ -1,47 +1,70 @@
 'use strict';
 var express = require('express');
 var bodyParser = require('body-parser');
+var passport = require('passport');
+var session = require('express-session');
+
 var app = express();
-
-var personModel = require('./models/person');
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
 
-var router = express.Router();
+app.use(session({ secret: 'simon', resave:true, saveUninitialized:true}));
+app.use(passport.initialize());
+app.use(passport.session());
 
-router.use(function (req, res, next) {
+app.use(function (req, res, next) {
   console.log('Incoming request from ' + req.path);
   next();
 });
 
-router.route('/health')
-  .get(function (req, res) {
-    res.send({status: 'hello world'});
-  });
 
-router.route('/people')
-  .get(function (req, res) {
-    personModel.find({}).lean().exec(function (err, people) {
-      if (err) {
-        //TODO: handle error on get
-        console.log(err);
-        res.statusCode = 400;
-        res.send(err);
-      }
-      res.set('Content-Type', 'application/json');
-      res.send({people: people.length});
-    });
-  })
-  .post(function (req, res) {
-    var person = new personModel(req.body);
-    person.save(function (err) {
-      if (err) {
-        console.log(err);
-      }
-    });
-    res.send({status: 'accepted'});
-  });
+var LocalStrategy = require('passport-local').Strategy;
 
-app.use('/api', router);
+passport.use(new LocalStrategy(
+  function (username, password, done) {
+    console.log('Incoming authentication request');
+    return done(null, {username: 'test', id: '12345'});
+//    User.findOne({ username: username }, function(err, user) {
+//      if (err) { return done(err); }
+//      if (!user) {
+//        return done(null, false, { message: 'Incorrect username.' });
+//      }
+//      if (!user.validPassword(password)) {
+//        return done(null, false, { message: 'Incorrect password.' });
+//      }
+//      return done(null, user);
+//    });
+  }));
+
+passport.serializeUser(function (user, done) {
+  console.log('serializing user');
+  console.log(user);
+  done(null, user.id);
+});
+
+passport.deserializeUser(function (id, done) {
+  console.log('deserializing user');
+  done(null, {username: 'test', id: '12345'});
+});
+
+var apiRouter = require('./routes/api');
+app.use('/api', apiRouter);
+
+require('./routes/login')(app, passport, __dirname);
+
+
+function ensureAuthenticated(req, res, next) {
+  console.log("auth? " + req.isAuthenticated());
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect('/login');
+}
+
+app.use('/', ensureAuthenticated, function (req, res) {
+  res.sendFile(__dirname + '/client/home.html');
+});
+
 
 module.exports = app;
 
