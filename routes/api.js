@@ -1,17 +1,16 @@
 'use strict';
-module.exports = function () {
-  var express = require('express');
+module.exports = function (express, auth) {
   var personModel = require('../models/person');
 
   var router = express.Router();
 
   router.route('/health')
-    .get(function (req, res) {
+    .get(auth.ensureAuthenticated, function (req, res) {
       res.send({status: 'hello world'});
     });
 
   router.route('/people')
-    .get(function (req, res) {
+    .get(auth.ensureAuthenticated, function (req, res) {
       personModel.find({}).lean().exec(function (err, people) {
         if (err) {
           //TODO: handle error on get

@@ -1,16 +1,24 @@
 'use strict';
-module.exports = function (app, passport, dirname) {
+module.exports = function (express, auth, dirname) {
 
-  app.route('/login')
+  var router = express.Router();
+
+  router.route('/login')
     .get(function (req, res) {
-      res.sendFile(dirname + '/client/login.html');
+      var redir = (req.query['redir'] ? req.query['redir'] : '/home');
+      res.render(dirname + '/client/login.ejs', { redir: redir});
     })
-    .post(
-    passport.authenticate('local', { successRedirect: '/', failureRedirect: '/login'}));
+    .post(function (req, res, next) {
+      console.log(req.query);
+      auth.passport.authenticate('local', { successRedirect: req.query['redir'], failureRedirect: '/login'})(req, res);
+    }
+  );
 
-  app.route('/logout')
+  router.route('/logout')
     .get(function (req, res) {
       req.logout();
       res.redirect('/login');
     });
+
+  return router;
 };
