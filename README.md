@@ -2,4 +2,4 @@
 supertest-test
 ==============
 
-A simple example using supertest, istanbul, sinon, and travis.
+A simple example using supertest, passport, istanbul, sinon, and travis.
