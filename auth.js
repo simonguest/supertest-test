@@ -1,3 +1,4 @@
+'use strict';
 module.exports = function (app) {
   var auth = {};
   auth.passport = require('passport');
