@@ -5,8 +5,15 @@ module.exports = function (express, auth) {
   var router = express.Router();
 
   router.route('/health')
-    .get(auth.ensureAuthenticated, function (req, res) {
+    .get(auth.passport.authenticate('concur'), function (req, res) {
       res.send({status: 'hello world'});
+    });
+
+  router.route('/auth/callback')
+    .get(auth.passport.authenticate('concur', { failureRedirect: '/login' }),
+    function(req, res) {
+      // Successful authentication, redirect home.
+      res.redirect('/home');
     });
 
   router.route('/people')
